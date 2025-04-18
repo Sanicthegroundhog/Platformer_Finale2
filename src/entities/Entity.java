@@ -1,7 +1,11 @@
 package entities;
 
-import java.awt.*;
+import utilz.Constants.Game;
+
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
+
 
 public abstract class Entity {
 
@@ -17,44 +21,44 @@ public abstract class Entity {
     protected Rectangle2D.Float attackBox;
     protected float walkSpeed;
 
-    public Entity(float x, float y, int width, int height) {
-        // TODO: coming soon
+    // TODO: Freebie
 
+    public Entity(float x, float y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
 
     protected void drawAttackBox(Graphics g, int xLvlOffset) {
-        // TODO: coming soon
-
+        g.setColor(Color.red);
+        g.drawRect((int) (attackBox.x - xLvlOffset), (int) attackBox.y, (int) attackBox.width, (int) attackBox.height);
     }
 
     protected void drawHitbox(Graphics g, int xLvlOffset) {
-        // TODO: coming soon
-
+        // For debugging the hitbox
+        g.setColor(Color.PINK);
+        g.drawRect((int) hitbox.x - xLvlOffset, (int) hitbox.y, (int) hitbox.width, (int) hitbox.height);
     }
 
     protected void initHitbox(int width, int height) {
-        // TODO: coming soon
-
+        hitbox = new Rectangle2D.Float(x, y, (int) (width * Game.SCALE), (int) (height * Game.SCALE));
     }
 
     public Rectangle2D.Float getHitbox() {
-        // TODO: coming soon
-        return null;
+        return hitbox;
     }
 
     public int getState() {
-        // TODO: coming soon
-        return 0;
+        return state;
     }
 
     public int getAniIndex() {
-        // TODO: coming soon
-        return 0;
+        return aniIndex;
     }
 
     public int getCurrentHealth() {
-        // TODO: coming soon
-        return 0;
+        return currentHealth;
     }
 
 }

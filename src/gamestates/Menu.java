@@ -1,13 +1,14 @@
 package gamestates;
 
-import main.Game;
-import ui.MenuButton;
-import utilz.LoadSave;
-
-import java.awt.*;
+import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+
+import main.Game;
+import ui.MenuButton;
+import utilz.Constants;
+import utilz.LoadSave;
 
 public class Menu extends State implements Statemethods {
 
@@ -17,64 +18,101 @@ public class Menu extends State implements Statemethods {
 
     public Menu(Game game) {
         super(game);
-        // TODO: coming soon
+        loadButtons();
+        loadBackground();
+        backgroundImgPink = LoadSave.GetSpriteAtlas(LoadSave.MENU_BACKGROUND_IMG);
 
     }
 
     private void loadBackground() {
-        // TODO: coming soon
+        backgroundImg = LoadSave.GetSpriteAtlas(LoadSave.MENU_BACKGROUND);
+        menuWidth = (int) (backgroundImg.getWidth() * Constants.Game.SCALE);
+        menuHeight = (int) (backgroundImg.getHeight() * Constants.Game.SCALE);
+        menuX = Constants.Game.GAME_WIDTH / 2 - menuWidth / 2;
+        menuY = (int) (45 * Constants.Game.SCALE);
     }
 
     private void loadButtons() {
-        // TODO: coming soon
+        buttons[0] = new MenuButton(Constants.Game.GAME_WIDTH / 2, (int) (150 * Constants.Game.SCALE), 0, Gamestate.PLAYING);
+        buttons[1] = new MenuButton(Constants.Game.GAME_WIDTH / 2, (int) (220 * Constants.Game.SCALE), 1, Gamestate.OPTIONS);
+        buttons[2] = new MenuButton(Constants.Game.GAME_WIDTH / 2, (int) (290 * Constants.Game.SCALE), 2, Gamestate.QUIT);
     }
 
     @Override
     public void update() {
-        // TODO: coming soon
+        for (MenuButton mb : buttons)
+            mb.update();
     }
 
     @Override
     public void draw(Graphics g) {
-        // TODO: coming soon
+
+        g.drawImage(backgroundImgPink, 0, 0, Constants.Game.GAME_WIDTH, Constants.Game.GAME_HEIGHT, null);
+        g.drawImage(backgroundImg, menuX, menuY, menuWidth, menuHeight, null);
+
+        for (MenuButton mb : buttons)
+            mb.draw(g);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        // TODO: coming soon
+        // TODO Auto-generated method stub
+
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        // TODO: coming soon
+        for (MenuButton mb : buttons) {
+            if (isIn(e, mb)) {
+                mb.setMousePressed(true);
+            }
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO: coming soon
+        for (MenuButton mb : buttons) {
+            if (isIn(e, mb)) {
+                if (mb.isMousePressed())
+                    mb.applyGamestate();
+                if (mb.getState() == Gamestate.PLAYING)
+                    game.getAudioPlayer().setLevelSong(game.getPlaying().getLevelManager().getLevelIndex());
+                break;
+            }
+        }
+
+        resetButtons();
 
     }
 
     private void resetButtons() {
-        // TODO: coming soon
+        for (MenuButton mb : buttons)
+            mb.resetBools();
 
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        // TODO: coming soon
+        for (MenuButton mb : buttons)
+            mb.setMouseOver(false);
+
+        for (MenuButton mb : buttons)
+            if (isIn(e, mb)) {
+                mb.setMouseOver(true);
+                break;
+            }
 
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // TODO: coming soon
 
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        // TODO: coming soon
+        // TODO Auto-generated method stub
+
     }
 
 }

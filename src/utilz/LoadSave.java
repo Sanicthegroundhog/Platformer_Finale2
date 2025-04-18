@@ -39,6 +39,7 @@ public class LoadSave {
         InputStream is = LoadSave.class.getResourceAsStream("/" + fileName);
         try {
             img = ImageIO.read(is);
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -48,7 +49,6 @@ public class LoadSave {
                 e.printStackTrace();
             }
         }
-
         return img;
     }
 
@@ -56,7 +56,7 @@ public class LoadSave {
         URL url = LoadSave.class.getResource("/lvls");
         File file = null;
 
-        try{
+        try {
             file = new File(url.toURI());
         } catch (URISyntaxException e) {
             e.printStackTrace();
@@ -67,9 +67,9 @@ public class LoadSave {
 
         for (int i = 0; i < filesSorted.length; i++)
             for (int j = 0; j < files.length; j++) {
-                if (files[j].getName().equals((i + 1) + "png")){
+                if (files[j].getName().equals((i + 1) + ".png"))
                     filesSorted[i] = files[j];
-                }
+
             }
 
         BufferedImage[] imgs = new BufferedImage[filesSorted.length];

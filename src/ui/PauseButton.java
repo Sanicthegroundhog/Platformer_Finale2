@@ -1,6 +1,6 @@
 package ui;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 public class PauseButton {
 
@@ -8,57 +8,55 @@ public class PauseButton {
     protected Rectangle bounds;
 
     public PauseButton(int x, int y, int width, int height) {
-        // TODO: coming soon
-
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        createBounds();
     }
 
     private void createBounds() {
-        // TODO: coming soon
+        bounds = new Rectangle(x, y, width, height);
     }
 
     public int getX() {
-        // TODO: coming soon
-        return 0;
+        return x;
     }
 
     public void setX(int x) {
-        // TODO: coming soon
+        this.x = x;
     }
 
     public int getY() {
-        // TODO: coming soon
-        return 0;
+        return y;
     }
 
     public void setY(int y) {
-        // TODO: coming soon
+        this.y = y;
     }
 
     public int getWidth() {
-        // TODO: coming soon
-        return 0;
+        return width;
     }
 
     public void setWidth(int width) {
-        // TODO: coming soon
+        this.width = width;
     }
 
     public int getHeight() {
-        // TODO: coming soon
-        return 0;
+        return height;
     }
 
     public void setHeight(int height) {
-        // TODO: coming soon
+        this.height = height;
     }
 
     public Rectangle getBounds() {
-        // TODO: coming soon
-        return null;
+        return bounds;
     }
 
     public void setBounds(Rectangle bounds) {
-        // TODO: coming soon
+        this.bounds = bounds;
     }
 
 }

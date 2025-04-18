@@ -1,11 +1,11 @@
 package ui;
 
-import gamestates.Gamestate;
-import utilz.LoadSave;
-
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
+import gamestates.Gamestate;
+import utilz.LoadSave;
 import static utilz.Constants.UI.Buttons.*;
 
 public class MenuButton {
@@ -17,63 +17,68 @@ public class MenuButton {
     private Rectangle bounds;
 
     public MenuButton(int xPos, int yPos, int rowIndex, Gamestate state) {
-        // TODO: coming soon
-
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.rowIndex = rowIndex;
+        this.state = state;
+        loadImgs();
+        initBounds();
     }
 
     private void initBounds() {
-        // TODO: coming soon
+        bounds = new Rectangle(xPos - xOffsetCenter, yPos, B_WIDTH, B_HEIGHT);
 
     }
 
     private void loadImgs() {
-        // TODO: coming soon
-
+        imgs = new BufferedImage[3];
+        BufferedImage temp = LoadSave.GetSpriteAtlas(LoadSave.MENU_BUTTONS);
+        for (int i = 0; i < imgs.length; i++)
+            imgs[i] = temp.getSubimage(i * B_WIDTH_DEFAULT, rowIndex * B_HEIGHT_DEFAULT, B_WIDTH_DEFAULT, B_HEIGHT_DEFAULT);
     }
 
     public void draw(Graphics g) {
-        // TODO: coming soon
+        g.drawImage(imgs[index], xPos - xOffsetCenter, yPos, B_WIDTH, B_HEIGHT, null);
     }
 
     public void update() {
-        // TODO: coming soon
-
+        index = 0;
+        if (mouseOver)
+            index = 1;
+        if (mousePressed)
+            index = 2;
     }
 
     public boolean isMouseOver() {
-        // TODO: coming soon
-        return false;
+        return mouseOver;
     }
 
     public void setMouseOver(boolean mouseOver) {
-        // TODO: coming soon
+        this.mouseOver = mouseOver;
     }
 
     public boolean isMousePressed() {
-        // TODO: coming soon
-        return false;
+        return mousePressed;
     }
 
     public void setMousePressed(boolean mousePressed) {
-        // TODO: coming soon
+        this.mousePressed = mousePressed;
     }
 
     public Rectangle getBounds() {
-        // TODO: coming soon
-        return null;
+        return bounds;
     }
 
     public void applyGamestate() {
-        // TODO: coming soon
+        Gamestate.state = state;
     }
 
     public void resetBools() {
-        // TODO: coming soon
-
+        mouseOver = false;
+        mousePressed = false;
     }
     public Gamestate getState() {
-        // TODO: coming soon
-        return null;
+        return state;
     }
 
 }

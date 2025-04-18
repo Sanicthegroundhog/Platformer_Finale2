@@ -1,12 +1,10 @@
 package ui;
 
-import utilz.LoadSave;
-
-import java.awt.*;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-import static utilz.Constants.UI.URMButtons.URM_DEFAULT_SIZE;
-import static utilz.Constants.UI.URMButtons.URM_SIZE;
+import utilz.LoadSave;
+import static utilz.Constants.UI.URMButtons.*;
 
 public class UrmButton extends PauseButton {
     private BufferedImage[] imgs;
@@ -15,44 +13,50 @@ public class UrmButton extends PauseButton {
 
     public UrmButton(int x, int y, int width, int height, int rowIndex) {
         super(x, y, width, height);
-        // TODO: coming soon
-
+        this.rowIndex = rowIndex;
+        loadImgs();
     }
 
     private void loadImgs() {
-        // TODO: coming soon
+        BufferedImage temp = LoadSave.GetSpriteAtlas(LoadSave.URM_BUTTONS);
+        imgs = new BufferedImage[3];
+        for (int i = 0; i < imgs.length; i++)
+            imgs[i] = temp.getSubimage(i * URM_DEFAULT_SIZE, rowIndex * URM_DEFAULT_SIZE, URM_DEFAULT_SIZE, URM_DEFAULT_SIZE);
+
     }
 
     public void update() {
-        // TODO: coming soon
+        index = 0;
+        if (mouseOver)
+            index = 1;
+        if (mousePressed)
+            index = 2;
 
     }
 
     public void draw(Graphics g) {
-        // TODO: coming soon
+        g.drawImage(imgs[index], x, y, URM_SIZE, URM_SIZE, null);
     }
 
     public void resetBools() {
-        // TODO: coming soon
-
+        mouseOver = false;
+        mousePressed = false;
     }
 
     public boolean isMouseOver() {
-        // TODO: coming soon
-        return false;
+        return mouseOver;
     }
 
     public void setMouseOver(boolean mouseOver) {
-        // TODO: coming soon
+        this.mouseOver = mouseOver;
     }
 
     public boolean isMousePressed() {
-        // TODO: coming soon
-        return false;
+        return mousePressed;
     }
 
     public void setMousePressed(boolean mousePressed) {
-        // TODO: coming soon
+        this.mousePressed = mousePressed;
     }
 
 }

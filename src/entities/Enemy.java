@@ -1,6 +1,5 @@
 package entities;
 
-
 import utilz.Constants;
 import utilz.Constants.Game;
 
@@ -24,80 +23,135 @@ public abstract class Enemy extends Entity {
 
     public Enemy(float x, float y, int width, int height, int enemyType) {
         super(x, y, width, height);
-        // TODO: coming soon
+        enemyType = this.enemyType;
+        maxHealth = GetMaxHealth(enemyType);
+        currentHealth = maxHealth;
+        walkSpeed = Game.SCALE * 0.35f;
 
     }
 
     protected void firstUpdateCheck(int[][] lvlData) {
-        // TODO: coming soon
-
+        if (!IsEntityOnFloor(hitbox, lvlData)) {
+            inAir = true;
+        }
+        firstUpdate = false;
     }
 
     protected void updateInAir(int[][] lvlData) {
-        // TODO: coming soon
-
+        if (CanMoveHere(hitbox.x, hitbox.y + airSpeed, hitbox.width, hitbox.height, lvlData)) {
+            hitbox.y += airSpeed;
+            airSpeed += GRAVITY;
+        } else {
+            inAir = false;
+            hitbox.y = GetEntityYPosUnderRoofOrAboveFloor(hitbox, airSpeed);
+            tileY = (int) (hitbox.y / Game.TILES_SIZE);
+        }
     }
 
     protected void move(int[][] lvlData) {
-        // TODO: coming soon
+        float xSpeed = 0;
+        if (walkDir == LEFT) {
+            xSpeed = -walkSpeed;
+        } else {
+            xSpeed = walkSpeed;
+        }
 
+        if (CanMoveHere(hitbox.x + xSpeed, hitbox.y, hitbox.width, hitbox.height, lvlData)) {
+            if (IsFloor(hitbox, xSpeed, lvlData)) {
+                hitbox.x += xSpeed;
+                return;
+            }
+        }
+        changeWalkDir();
     }
 
     protected void turnTowardsPlayer(Player player) {
-        // TODO: coming soon
-
+        if (player.hitbox.x > hitbox.x) {
+            walkDir = RIGHT;
+        } else {
+            walkDir = LEFT;
+        }
     }
 
     protected boolean canSeePlayer(int[][] lvlData, Player player) {
-        // TODO: coming soon
+        int playerTileY = (int) (player.getHitbox().y / Game.TILES_SIZE);
+        if (playerTileY == tileY) {
+            if (isPlayerInRange(player)) {
+                if (IsSightClear(lvlData, hitbox, player.hitbox, tileY))
+                    return true;
+            }
+        }
         return false;
     }
 
     protected boolean isPlayerInRange(Player player) {
-        // TODO: coming soon
-        return false;
+        int absValue = (int) Math.abs(player.hitbox.x - hitbox.x);
+        return absValue <= attackDistance * 5;
     }
 
     protected boolean isPlayerCloseForAttack(Player player) {
-        // TODO: coming soon
-        return false;
+        int absValue = (int) Math.abs(player.hitbox.x - hitbox.x);
+        return absValue <= attackDistance;
     }
 
     protected void newState(int enemyState) {
-        // TODO: coming soon
-
+        this.state = enemyState;
+        aniTick = 0;
+        aniIndex = 0;
     }
 
     public void hurt(int amount) {
-        // TODO: coming soon
-
+        currentHealth -= amount;
+        if (currentHealth <= 0) {
+            newState(DEAD);
+        } else {
+            newState(HIT);
+        }
     }
 
     protected void checkPlayerHit(Rectangle2D.Float attackBox, Player player) {
-        // TODO: coming soon
-
-
+        if (attackBox.intersects(player.hitbox)) {
+            player.changeHealth(GetEnemyDmg(enemyType));
+        }
+        attackChecked = true;
     }
 
     protected void updateAnimationTick() {
-        // TODO: coming soon
-
+        aniTick++;
+        if (aniTick >= ANI_SPEED) {
+            aniTick = 0;
+            aniIndex++;
+            if (aniIndex >= GetSpriteAmount(enemyType, state)) {
+                aniIndex = 0;
+                switch (state) {
+                    case ATTACK, HIT -> state = IDLE;
+                    case DEAD -> active = false;
+                }
+            }
+        }
     }
 
     protected void changeWalkDir() {
-        // TODO: coming soon
-
+        if (walkDir == LEFT) {
+            walkDir = RIGHT;
+        } else {
+            walkDir = LEFT;
+        }
     }
 
     public void resetEnemy() {
-        // TODO: coming soon
-
+        hitbox.x = x;
+        hitbox.y = y;
+        firstUpdate = true;
+        currentHealth = maxHealth;
+        newState(IDLE);
+        active = true;
+        airSpeed = 0;
     }
 
 
     public boolean isActive() {
-        // TODO: coming soon
-        return false;
+        return active;
     }
 
 }

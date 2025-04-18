@@ -1,23 +1,23 @@
 package gamestates;
 
-import entities.EnemyManager;
-import entities.Player;
-import levels.LevelManager;
-import main.Game;
-import objects.ObjectManager;
-import ui.GameOverOverlay;
-import ui.LevelCompletedOverlay;
-import ui.PauseOverlay;
-import utilz.Constants;
-import utilz.LoadSave;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
+import main.Game;
+import entities.EnemyManager;
+import entities.Player;
+import levels.LevelManager;
+import objects.ObjectManager;
+import ui.GameOverOverlay;
+import ui.LevelCompletedOverlay;
+import ui.PauseOverlay;
+import utilz.Constants;
+import utilz.LoadSave;
 import static utilz.Constants.Environment.*;
 
 public class Playing extends State implements Statemethods {
@@ -43,147 +43,270 @@ public class Playing extends State implements Statemethods {
     private boolean lvlCompleted;
     private boolean playerDying;
 
+    // TODO: hey look free code.
     public Playing(Game game) {
         super(game);
-        // TODO: coming soon
+        initClasses();
+
+        backgroundImg = LoadSave.GetSpriteAtlas(LoadSave.PLAYING_BG_IMG);
+        bigCloud = LoadSave.GetSpriteAtlas(LoadSave.BIG_CLOUDS);
+        smallCloud = LoadSave.GetSpriteAtlas(LoadSave.SMALL_CLOUDS);
+        smallCloudsPos = new int[8];
+        for (int i = 0; i < smallCloudsPos.length; i++)
+            smallCloudsPos[i] = (int) (90 * Constants.Game.SCALE) + rnd.nextInt((int) (100 * Constants.Game.SCALE));
+
+        calcLvlOffset();
+        loadStartLevel();
     }
 
     public void loadNextLevel() {
-        // TODO: coming soon
+
+        levelManager.loadNextLevel();
+        player.setSpawn(levelManager.getCurrentLevel().getPlayerSpawn());
+        resetAll();
     }
 
     private void loadStartLevel() {
-        // TODO: coming soon
+        enemyManager.loadEnemies(levelManager.getCurrentLevel());
+        objectManager.loadObjects(levelManager.getCurrentLevel());
     }
 
     private void calcLvlOffset() {
-        // TODO: coming soon
+        maxLvlOffsetX = levelManager.getCurrentLevel().getLvlOffset();
     }
 
     private void initClasses() {
-        // TODO: coming soon
+        levelManager = new LevelManager(game);
+        enemyManager = new EnemyManager(this);
+        objectManager = new ObjectManager(this);
+
+        player = new Player(200, 200, (int) (64 * Constants.Game.SCALE), (int) (40 * Constants.Game.SCALE), this);
+        player.loadLvlData(levelManager.getCurrentLevel().getLevelData());
+        player.setSpawn(levelManager.getCurrentLevel().getPlayerSpawn());
+
+        pauseOverlay = new PauseOverlay(this);
+        gameOverOverlay = new GameOverOverlay(this);
+        levelCompletedOverlay = new LevelCompletedOverlay(this);
     }
 
     @Override
     public void update() {
-        // TODO: coming soon
+        if (paused) {
+            pauseOverlay.update();
+        } else if (lvlCompleted) {
+            levelCompletedOverlay.update();
+        } else if (gameOver) {
+            gameOverOverlay.update();
+        } else if (playerDying) {
+            player.update();
+        } else {
+            levelManager.update();
+            objectManager.update(levelManager.getCurrentLevel().getLevelData(), player);
+            player.update();
+            enemyManager.update(levelManager.getCurrentLevel().getLevelData(), player);
+            checkCloseToBorder();
+        }
     }
 
     private void checkCloseToBorder() {
-        // TODO: coming soon
+        int playerX = (int) player.getHitbox().x;
+        int diff = playerX - xLvlOffset;
+
+        if (diff > rightBorder)
+            xLvlOffset += diff - rightBorder;
+        else if (diff < leftBorder)
+            xLvlOffset += diff - leftBorder;
+
+        if (xLvlOffset > maxLvlOffsetX)
+            xLvlOffset = maxLvlOffsetX;
+        else if (xLvlOffset < 0)
+            xLvlOffset = 0;
     }
 
     @Override
     public void draw(Graphics g) {
-        // TODO: coming soon
+        g.drawImage(backgroundImg, 0, 0, Constants.Game.GAME_WIDTH, Constants.Game.GAME_HEIGHT, null);
+
+        drawClouds(g);
+
+        levelManager.draw(g, xLvlOffset);
+        player.render(g, xLvlOffset);
+        enemyManager.draw(g, xLvlOffset);
+        objectManager.draw(g, xLvlOffset);
+
+        if (paused) {
+            g.setColor(new Color(0, 0, 0, 150));
+            g.fillRect(0, 0, Constants.Game.GAME_WIDTH, Constants.Game.GAME_HEIGHT);
+            pauseOverlay.draw(g);
+        } else if (gameOver)
+            gameOverOverlay.draw(g);
+        else if (lvlCompleted)
+            levelCompletedOverlay.draw(g);
     }
 
     private void drawClouds(Graphics g) {
-        // TODO: coming soon
+        for (int i = 0; i < 3; i++)
+            g.drawImage(bigCloud, i * BIG_CLOUD_WIDTH - (int) (xLvlOffset * 0.3), (int) (204 * Constants.Game.SCALE), BIG_CLOUD_WIDTH, BIG_CLOUD_HEIGHT, null);
+
+        for (int i = 0; i < smallCloudsPos.length; i++)
+            g.drawImage(smallCloud, SMALL_CLOUD_WIDTH * 4 * i - (int) (xLvlOffset * 0.7), smallCloudsPos[i], SMALL_CLOUD_WIDTH, SMALL_CLOUD_HEIGHT, null);
     }
 
     public void resetAll() {
-        // TODO: coming soon
+        gameOver = false;
+        paused = false;
+        lvlCompleted = false;
+        playerDying = false;
+        player.resetAll();
+        enemyManager.resetAllEnemies();
+        objectManager.resetAllObjects();
     }
 
     public void setGameOver(boolean gameOver) {
-        // TODO: coming soon
+        this.gameOver = gameOver;
     }
 
     public void checkObjectHit(Rectangle2D.Float attackBox) {
-        // TODO: coming soon
+        objectManager.checkObjectHit(attackBox);
     }
 
     public void checkEnemyHit(Rectangle2D.Float attackBox) {
-        // TODO: coming soon
+        enemyManager.checkEnemyHit(attackBox);
     }
 
     public void checkPotionTouched(Rectangle2D.Float hitbox) {
-        // TODO: coming soon
+        objectManager.checkObjectTouched(hitbox);
     }
 
     public void checkSpikesTouched(Player p) {
-        // TODO: coming soon
+        objectManager.checkSpikesTouched(p);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        // TODO: coming soon
+        if (!gameOver) {
+            if (e.getButton() == MouseEvent.BUTTON1)
+                player.setAttacking(true);
+            else if (e.getButton() == MouseEvent.BUTTON3)
+                player.powerAttack();
+        }
 
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // TODO: coming soon
+        if (gameOver)
+            gameOverOverlay.keyPressed(e);
+        else
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_A:
+                    player.setLeft(true);
+                    break;
+                case KeyEvent.VK_D:
+                    player.setRight(true);
+                    break;
+                case KeyEvent.VK_SPACE:
+                    player.setJump(true);
+                    break;
+                case KeyEvent.VK_ESCAPE:
+                    paused = !paused;
+                    break;
+            }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        // TODO: coming soon
+        if (!gameOver)
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_A:
+                    player.setLeft(false);
+                    break;
+                case KeyEvent.VK_D:
+                    player.setRight(false);
+                    break;
+                case KeyEvent.VK_SPACE:
+                    player.setJump(false);
+                    break;
+            }
 
     }
 
     public void mouseDragged(MouseEvent e) {
-        // TODO: coming soon
+        if (!gameOver)
+            if (paused)
+                pauseOverlay.mouseDragged(e);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        // TODO: coming soon
+        if (!gameOver) {
+            if (paused)
+                pauseOverlay.mousePressed(e);
+            else if (lvlCompleted)
+                levelCompletedOverlay.mousePressed(e);
+        } else
+            gameOverOverlay.mousePressed(e);
 
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO: coming soon
+        if (!gameOver) {
+            if (paused)
+                pauseOverlay.mouseReleased(e);
+            else if (lvlCompleted)
+                levelCompletedOverlay.mouseReleased(e);
+        } else
+            gameOverOverlay.mouseReleased(e);
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        // TODO: coming soon
+        if (!gameOver) {
+            if (paused)
+                pauseOverlay.mouseMoved(e);
+            else if (lvlCompleted)
+                levelCompletedOverlay.mouseMoved(e);
+        } else
+            gameOverOverlay.mouseMoved(e);
     }
 
     public void setLevelCompleted(boolean levelCompleted) {
-        // TODO: coming soon
+        this.lvlCompleted = levelCompleted;
+        if (levelCompleted)
+            game.getAudioPlayer().lvlCompleted();
     }
 
     public void setMaxLvlOffset(int lvlOffset) {
-        // TODO: coming soon
+        this.maxLvlOffsetX = lvlOffset;
     }
 
     public void unpauseGame() {
-        // TODO: coming soon
+        paused = false;
     }
 
     public void windowFocusLost() {
-        // TODO: coming soon
+        player.resetDirBooleans();
     }
 
     public Player getPlayer() {
-        // TODO: coming soon
-        return null;
+        return player;
     }
 
     public EnemyManager getEnemyManager() {
-        // TODO: coming soon
-        return null;
-
+        return enemyManager;
     }
 
     public ObjectManager getObjectManager() {
-        // TODO: coming soon
-        return null;
-
+        return objectManager;
     }
 
     public LevelManager getLevelManager() {
-        // TODO: coming soon
-        return null;
-
+        return levelManager;
     }
 
     public void setPlayerDying(boolean playerDying) {
-        // TODO: coming soon
+        this.playerDying = playerDying;
 
     }
 

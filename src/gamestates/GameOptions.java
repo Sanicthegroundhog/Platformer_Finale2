@@ -1,18 +1,17 @@
 package gamestates;
 
+import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+
 import main.Game;
 import ui.AudioOptions;
 import ui.PauseButton;
 import ui.UrmButton;
 import utilz.Constants;
 import utilz.LoadSave;
-
-import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-
-import static utilz.Constants.UI.URMButtons.URM_SIZE;
+import static utilz.Constants.UI.URMButtons.*;
 
 public class GameOptions extends State implements Statemethods {
 
@@ -23,54 +22,85 @@ public class GameOptions extends State implements Statemethods {
 
     public GameOptions(Game game) {
         super(game);
-        // TODO: coming soon
+        loadImgs();
+        loadButton();
+        audioOptions = game.getAudioOptions();
     }
 
     private void loadButton() {
-        // TODO: coming soon
+        int menuX = (int) (387 * Constants.Game.SCALE);
+        int menuY = (int) (325 * Constants.Game.SCALE);
+
+        menuB = new UrmButton(menuX, menuY, URM_SIZE, URM_SIZE, 2);
     }
 
     private void loadImgs() {
-        // TODO: coming soon
+        backgroundImg = LoadSave.GetSpriteAtlas(LoadSave.MENU_BACKGROUND_IMG);
+        optionsBackgroundImg = LoadSave.GetSpriteAtlas(LoadSave.OPTIONS_MENU);
+
+        bgW = (int) (optionsBackgroundImg.getWidth() * Constants.Game.SCALE);
+        bgH = (int) (optionsBackgroundImg.getHeight() * Constants.Game.SCALE);
+        bgX = Constants.Game.GAME_WIDTH / 2 - bgW / 2;
+        bgY = (int) (33 * Constants.Game.SCALE);
     }
 
     @Override
     public void update() {
-        // TODO: coming soon
+        menuB.update();
+        audioOptions.update();
 
     }
 
     @Override
     public void draw(Graphics g) {
-        // TODO: coming soon
+        g.drawImage(backgroundImg, 0, 0, Constants.Game.GAME_WIDTH, Constants.Game.GAME_HEIGHT, null);
+        g.drawImage(optionsBackgroundImg, bgX, bgY, bgW, bgH, null);
+
+        menuB.draw(g);
+        audioOptions.draw(g);
 
     }
 
     public void mouseDragged(MouseEvent e) {
-        // TODO: coming soon
+        audioOptions.mouseDragged(e);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        // TODO: coming soon
+        if (isIn(e, menuB)) {
+            menuB.setMousePressed(true);
+        } else
+            audioOptions.mousePressed(e);
 
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO: coming soon
+        if (isIn(e, menuB)) {
+            if (menuB.isMousePressed())
+                Gamestate.state = Gamestate.MENU;
+        } else
+            audioOptions.mouseReleased(e);
+
+        menuB.resetBools();
 
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        // TODO: coming soon
+        menuB.setMouseOver(false);
+
+        if (isIn(e, menuB))
+            menuB.setMouseOver(true);
+        else
+            audioOptions.mouseMoved(e);
 
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // TODO: coming soon
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+            Gamestate.state = Gamestate.MENU;
 
     }
 
@@ -87,8 +117,7 @@ public class GameOptions extends State implements Statemethods {
     }
 
     private boolean isIn(MouseEvent e, PauseButton b) {
-        // TODO: coming soon
-        return false;
+        return b.getBounds().contains(e.getX(), e.getY());
     }
 
 }

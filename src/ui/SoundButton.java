@@ -1,12 +1,10 @@
 package ui;
 
-import ui.PauseButton;
-import utilz.LoadSave;
-
-import java.awt.*;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-import static utilz.Constants.UI.PauseButtons.SOUND_SIZE_DEFAULT;
+import utilz.LoadSave;
+import static utilz.Constants.UI.PauseButtons.*;
 
 public class SoundButton extends PauseButton {
 
@@ -17,49 +15,63 @@ public class SoundButton extends PauseButton {
 
     public SoundButton(int x, int y, int width, int height) {
         super(x, y, width, height);
-        // TODO: coming soon
+
+        loadSoundImgs();
     }
 
     private void loadSoundImgs() {
-        // TODO: coming soon
+        BufferedImage temp = LoadSave.GetSpriteAtlas(LoadSave.SOUND_BUTTONS);
+        soundImgs = new BufferedImage[2][3];
+        for (int j = 0; j < soundImgs.length; j++)
+            for (int i = 0; i < soundImgs[j].length; i++)
+                soundImgs[j][i] = temp.getSubimage(i * SOUND_SIZE_DEFAULT, j * SOUND_SIZE_DEFAULT, SOUND_SIZE_DEFAULT, SOUND_SIZE_DEFAULT);
     }
 
     public void update() {
-        // TODO: coming soon
+        if (muted)
+            rowIndex = 1;
+        else
+            rowIndex = 0;
+
+        colIndex = 0;
+        if (mouseOver)
+            colIndex = 1;
+        if (mousePressed)
+            colIndex = 2;
+
     }
 
     public void resetBools() {
-        // TODO: coming soon
+        mouseOver = false;
+        mousePressed = false;
     }
 
     public void draw(Graphics g) {
-        // TODO: coming soon
+        g.drawImage(soundImgs[rowIndex][colIndex], x, y, width, height, null);
     }
 
     public boolean isMouseOver() {
-        // TODO: coming soon
-        return false;
+        return mouseOver;
     }
 
     public void setMouseOver(boolean mouseOver) {
-        // TODO: coming soon
+        this.mouseOver = mouseOver;
     }
 
     public boolean isMousePressed() {
-        // TODO: coming soon
-        return false;
+        return mousePressed;
     }
 
     public void setMousePressed(boolean mousePressed) {
-        // TODO: coming soon
+        this.mousePressed = mousePressed;
     }
 
     public boolean isMuted() {
-        // TODO: coming soon
-        return false;
+        return muted;
     }
 
     public void setMuted(boolean muted) {
-        // TODO: coming soon
+        this.muted = muted;
     }
+
 }
